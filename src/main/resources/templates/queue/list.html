@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Work queue')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('queue')}"></header>
+<main class="container wide">
+  <section class="welcome"><div><p class="eyebrow">PRIORITISED WORK QUEUE · AS OF <span th:text="${m.asOf()}"></span></p><h1>Work queue</h1><p class="muted">Contactable cases first, ordered by explainable priority score; held, restricted and closable cases follow.</p></div>
+    <form method="post" th:action="@{/promises/reconcile}"><button class="button secondary" type="submit">Reconcile promises</button></form></section>
+  <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+  <div class="alert error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+  <div class="filters"><a class="chip" th:classappend="${action == null or action == ''} ? active" th:href="@{/queue}">All</a><a class="chip" th:each="e : ${m.casesByNextAction()}" th:if="${e.key != 'NO_ACTION'}" th:classappend="${action == e.key} ? active" th:href="@{/queue(action=${e.key})}" th:text="${e.key} + ' (' + ${e.value} + ')'"></a></div>
+  <section class="panel"><div class="panel-head"><div><h2 th:text="${total} + ' cases'"></h2><p class="muted">Score breakdown: DPD (max 40) + balance (max 30) + risk (max 20) + broken promises (max 10); hardship caps at 50; restrictions gate to 0.</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Case</th><th>Status</th><th>DPD</th><th>Arrears</th><th>Priority</th><th>Breakdown / reasons</th><th>Next action</th><th>Channel · next permitted slot (UTC)</th><th></th></tr></thead><tbody>
+      <tr th:each="a : ${rows}">
+        <td><span class="mono" th:text="${a.caseRef()}"></span><br><small class="muted" th:text="${a.loanRef()}"></small></td>
+        <td th:text="${a.caseStatus()}"></td><td th:text="${a.daysPastDue()}"></td>
+        <td th:text="${#numbers.formatDecimal(a.arrears(),1,'COMMA',2,'POINT')}"></td>
+        <td><span class="pill" th:classappend="${a.priorityBand() == 'HIGH'} ? danger : (${a.priorityBand() == 'INELIGIBLE'} ? muted : warning)" th:text="${a.priorityScore()} + ' ' + ${a.priorityBand()}"></span></td>
+        <td class="wrap"><small th:text="${a.scoreBreakdown()}"></small><br><small class="muted" th:text="${#strings.listJoin(a.reasonCodes(), ', ')}"></small></td>
+        <td><span class="pill" th:classappend="${a.actionable()} ? '' : muted" th:text="${a.nextAction()}"></span></td>
+        <td><span th:if="${a.contactChannel()}" th:text="${a.contactChannel()} + ' · ' + ${a.nextContactSlot()}"></span><span class="muted" th:unless="${a.contactChannel()}" th:text="${#strings.setJoin(a.blockingRestrictions(), ', ')}"></span></td>
+        <td><form th:if="${a.actionable()}" method="post" th:action="@{/queue/{ref}/schedule(ref=${a.caseRef()})}"><button class="button primary small" type="submit">Schedule</button></form></td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(rows)}"><td colspan="9" class="empty">No cases need action.</td></tr>
+    </tbody></table></div></section>
+  <p class="footnote">Showing up to 200 rows. Scheduling re-checks the contact policy and records BLOCKED decisions with their reason. JSON: <code>GET /api/v1/work-queue</code>.</p>
+</main></body></html>

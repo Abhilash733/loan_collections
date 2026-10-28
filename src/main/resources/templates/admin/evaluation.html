@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Evaluation')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('evaluation')}"></header>
+<main class="container">
+  <section class="welcome"><div><p class="eyebrow">ADMINISTRATION · GROUND-TRUTH EVALUATION</p><h1>Evaluation</h1><p class="muted">Compares the application's exception detection and next-action decisions with the generator's labels. Labels are read from <code>ground_truth/</code> at evaluation time and never loaded as inputs.</p></div>
+    <form method="post" th:action="@{/admin/seed}" onsubmit="return confirm('Replace ALL business data with the generated synthetic dataset?')"><button class="button primary" type="submit">Load synthetic dataset</button></form></section>
+  <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+  <div class="alert error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+  <th:block th:if="${report}">
+  <section class="stats">
+    <article class="stat"><span>Reference date</span><strong th:text="${report.referenceDate()}"></strong><small>From the dataset manifest</small></article>
+    <article class="stat"><span>Next-action accuracy</span><strong th:text="${report.actionAccuracy() == null ? 'n/a' : #numbers.formatPercent(report.actionAccuracy(),1,2)}"></strong><small th:text="${report.actionMatches()} + ' / ' + ${report.casesEvaluated()} + ' cases (' + ${report.casesLabelled()} + ' labelled)'"></small></article>
+    <article class="stat"><span>Priority-band accuracy</span><strong th:text="${report.bandAccuracy() == null ? 'n/a' : #numbers.formatPercent(report.bandAccuracy(),1,2)}"></strong><small th:text="${report.bandMatches()} + ' / ' + ${report.casesEvaluated()} + ' cases'"></small></article>
+  </section>
+  <section class="panel"><div class="panel-head"><div><h2>Anomaly detection vs. ground truth</h2><p class="muted">Every rule runs over all records; unlabelled detections are false positives.</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Labelled</th><th>Detected</th><th>TP</th><th>FP</th><th>FN</th><th>Precision</th><th>Recall</th></tr></thead><tbody>
+      <tr th:each="r : ${report.rules()}"><td th:text="${r.ruleId()}"></td><td th:text="${r.labelled()}"></td><td th:text="${r.detected()}"></td><td th:text="${r.truePositives()}"></td><td th:text="${r.falsePositives()}"></td><td th:text="${r.falseNegatives()}"></td><td th:text="${r.precision() ?: 'n/a'}"></td><td th:text="${r.recall() ?: 'n/a'}"></td></tr>
+    </tbody></table></div></section>
+  <section class="panel" th:unless="${#lists.isEmpty(report.mismatches())}"><div class="panel-head"><div><h2>Decision mismatches</h2><p class="muted">First 25 cases where the application disagrees with the label</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Case</th><th>Expected action</th><th>Actual action</th><th>Expected band</th><th>Actual band</th></tr></thead><tbody>
+      <tr th:each="x : ${report.mismatches()}"><td class="mono" th:text="${x.caseRef()}"></td><td th:text="${x.expectedAction()}"></td><td th:text="${x.actualAction()}"></td><td th:text="${x.expectedBand()}"></td><td th:text="${x.actualBand()}"></td></tr>
+    </tbody></table></div></section>
+  </th:block>
+  <p class="footnote">Workflow actions (scheduling contacts, recording promises, reconciliation) change the data, so evaluation results are meaningful straight after loading the dataset.</p>
+</main></body></html>

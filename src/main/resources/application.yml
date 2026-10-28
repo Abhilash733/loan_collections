@@ -1,0 +1,29 @@
+#spring:
+#  config:
+#    # Local, git-ignored overrides (DB_URL, DB_USERNAME, DB_PASSWORD, SERVER_PORT). See .env.example.
+#    import: optional:file:.env[.properties]
+#  thymeleaf:
+#    cache: false
+#  application:
+#    name: loan-collections
+#  datasource:
+#    url: ${DB_URL:jdbc:mysql://localhost:3306/loan_collections?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&createDatabaseIfNotExist=true}
+#    username: ${DB_USERNAME:loan_app}
+#    password: ${DB_PASSWORD:local-dev-password-change-me}
+#  jpa:
+#    open-in-view: false
+#    hibernate:
+#      ddl-auto: validate
+#    properties:
+#      hibernate:
+#        format_sql: true
+#  flyway:
+#    enabled: true
+#server:
+#  port: 6969
+#app:
+#  # Generated dataset (seed SQL, ground truth, manifest) produced by tools/generate_synthetic_data.py
+#  dataset-dir: ${DATASET_DIR:data/generated}
+#logging:
+#  level:
+#    com.example.loancollections: INFO

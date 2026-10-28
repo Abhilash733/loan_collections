@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title th:text="${title} + ' | Loan Collections'">Loan Collections</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<header class="topbar" th:fragment="topbar(active)"><a class="brand" th:href="@{/}">LC <span>Loan Collections</span></a><nav><a th:classappend="${active == 'dashboard'} ? active" th:href="@{/}">Dashboard</a><a th:classappend="${active == 'queue'} ? active" th:href="@{/queue}">Work queue</a><a th:classappend="${active == 'loans'} ? active" th:href="@{/loans}">Loans</a><a th:classappend="${active == 'cases'} ? active" th:href="@{/cases}">Cases</a><a th:classappend="${active == 'exceptions'} ? active" th:href="@{/exceptions}">Exceptions</a><a th:classappend="${active == 'evaluation'} ? active" th:href="@{/evaluation}">Evaluation</a></nav><span class="env">SYNTHETIC DATA</span></header>
+</body>
+</html>

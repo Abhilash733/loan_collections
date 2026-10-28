@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Exceptions')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('exceptions')}"></header>
+<main class="container wide">
+  <section class="welcome"><div><p class="eyebrow">RISK &amp; COMPLIANCE REVIEW · AS OF <span th:text="${asOf}"></span></p><h1>Exceptions</h1><p class="muted">Records that break collections rules: contact policy breaches, disputes treated as confirmed, paid accounts still in collection, misallocated payments, excessive promises, invalid case transitions and unreconciled balances.</p></div></section>
+  <div class="filters"><a class="chip" th:classappend="${rule == null or rule == ''} ? active" th:href="@{/exceptions}">All</a><a class="chip" th:each="r : ${rules}" th:classappend="${rule == r} ? active" th:href="@{/exceptions(rule=${r})}" th:text="${r} + ' (' + ${byRule.get(r) ?: 0} + ')'"></a></div>
+  <section class="panel"><div class="table-wrap"><table><thead><tr><th>Rule</th><th>Severity</th><th>Entity</th><th>Record</th><th>Loan</th><th>Detail</th></tr></thead><tbody>
+    <tr th:each="e : ${rows}"><td th:text="${e.ruleId()}"></td><td><span class="pill" th:classappend="${e.severity() == 'CRITICAL'} ? danger : warning" th:text="${e.severity()}"></span></td><td th:text="${e.entityType()}"></td><td class="mono" th:text="${e.recordRef()}"></td><td class="mono" th:text="${e.loanRef()}"></td><td class="wrap" th:text="${e.detail()}"></td></tr>
+    <tr th:if="${#lists.isEmpty(rows)}"><td colspan="6" class="empty">No exceptions detected.</td></tr>
+  </tbody></table></div></section>
+  <p class="footnote">Showing up to 500 rows. JSON: <code>GET /api/v1/compliance/exceptions?rule=…</code></p>
+</main></body></html>

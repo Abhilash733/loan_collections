@@ -1,0 +1,11 @@
+target/
+.idea/
+.project
+.classpath
+.settings/
+.env
+*.log
+__pycache__/
+data/generated/
+.vscode/
+bin/

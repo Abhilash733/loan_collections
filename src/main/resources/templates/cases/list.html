@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Collection cases')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('cases')}"></header>
+<main class="container wide"><section class="welcome"><div><p class="eyebrow">CASES</p><h1>Collection cases</h1><p class="muted">Stored case status and the priority score recorded at the dataset reference date, with its breakdown. The work queue recalculates live.</p></div><a class="button secondary" th:href="@{/queue}">Work queue →</a></section>
+<section class="panel"><div class="table-wrap"><table><thead><tr><th>Case reference</th><th>Loan ID</th><th>Status</th><th>Priority</th><th>Breakdown</th><th>Reason codes</th><th>Opened at</th></tr></thead><tbody>
+<tr th:each="item : ${cases}"><td class="mono" th:text="${item.caseRef()}"></td><td th:text="${item.loanId()}"></td><td th:text="${item.status()}"></td><td><span class="pill warning" th:text="${item.priorityScore()} + ' ' + ${item.priorityBand()}"></span></td><td class="wrap"><small th:text="${item.scoreBreakdown()}"></small></td><td class="wrap"><small th:text="${item.reasonCodes()}"></small></td><td th:text="${item.openedAt()}"></td></tr>
+<tr th:if="${#lists.isEmpty(cases)}"><td colspan="7" class="empty">No collection cases found.</td></tr></tbody></table></div></section>
+<p class="footnote">Top 100 by stored priority score. JSON: <code>GET /api/v1/collection-cases</code>.</p></main></body></html>

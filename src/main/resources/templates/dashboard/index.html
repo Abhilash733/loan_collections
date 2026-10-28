@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('dashboard')}"></header>
+<main class="container">
+  <section class="welcome"><div><p class="eyebrow">OPERATIONS OVERVIEW · AS OF <span th:text="${m.asOf()}"></span></p><h1>Collections dashboard</h1><p class="muted">Balances, DPD and priorities are derived from installments and payment allocations at the as-of date.</p></div><a class="button primary" th:href="@{/queue}">Open work queue</a></section>
+  <section class="stats four">
+    <article class="stat"><span>Active cases</span><strong th:text="${m.activeCases()}">0</strong><small th:text="${m.loans()} + ' loans in portfolio'"></small></article>
+    <article class="stat"><span>Arrears in active cases</span><strong th:text="${#numbers.formatDecimal(m.totalArrears(),1,'COMMA',0,'POINT')}">0</strong><small th:text="'Average DPD ' + ${#numbers.formatDecimal(m.averageDpd(),1,1)}"></small></article>
+    <article class="stat"><span>Promise kept rate</span><strong th:text="${m.promiseKeptRate()} + '%'">0%</strong><small>Fulfilled / settled promises</small></article>
+    <article class="stat"><span>Contacts blocked by policy</span><strong th:text="${m.contactBlockRate()} + '%'">0%</strong><small>Restrictions enforced before contact</small></article>
+  </section>
+  <section class="grid-2">
+    <section class="panel"><div class="panel-head"><div><h2>Next actions</h2><p class="muted">Decided per case from documented rules</p></div><a class="text-link" th:href="@{/queue}">Work queue →</a></div>
+      <div class="table-wrap"><table><thead><tr><th>Action</th><th>Cases</th></tr></thead><tbody><tr th:each="e : ${m.casesByNextAction()}"><td><a class="text-link" th:href="@{/queue(action=${e.key})}" th:text="${e.key}"></a></td><td th:text="${e.value}"></td></tr></tbody></table></div></section>
+    <section class="panel"><div class="panel-head"><div><h2>Exceptions</h2><p class="muted" th:text="${exceptionTotal} + ' records need compliance review'"></p></div><a class="text-link" th:href="@{/exceptions}">Review →</a></div>
+      <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Records</th></tr></thead><tbody><tr th:each="e : ${m.exceptionsByRule()}"><td th:text="${e.key}"></td><td th:text="${e.value}"></td></tr><tr th:if="${#maps.isEmpty(m.exceptionsByRule())}"><td colspan="2" class="empty">No exceptions detected.</td></tr></tbody></table></div></section>
+  </section>
+  <section class="grid-2">
+    <section class="panel"><div class="panel-head"><div><h2>Active cases by priority band</h2></div></div>
+      <div class="table-wrap"><table><tbody><tr th:each="e : ${m.casesByPriorityBand()}"><td th:text="${e.key}"></td><td th:text="${e.value}"></td></tr></tbody></table></div></section>
+    <section class="panel"><div class="panel-head"><div><h2>Promise and contact outcomes</h2></div></div>
+      <div class="table-wrap"><table><tbody><tr th:each="e : ${m.promiseOutcomes()}"><td th:text="'Promise ' + ${e.key}"></td><td th:text="${e.value}"></td></tr><tr th:each="e : ${m.contactOutcomes()}"><td th:text="'Contact ' + ${e.key}"></td><td th:text="${e.value}"></td></tr></tbody></table></div></section>
+  </section>
+  <section class="panel"><div class="panel-head"><div><h2>Top of the queue</h2><p class="muted">Highest-priority contactable cases</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Case</th><th>DPD</th><th>Arrears</th><th>Score</th><th>Why</th><th>Next permitted slot (UTC)</th></tr></thead><tbody>
+      <tr th:each="a : ${topQueue}"><td class="mono" th:text="${a.caseRef()}"></td><td th:text="${a.daysPastDue()}"></td><td th:text="${#numbers.formatDecimal(a.arrears(),1,'COMMA',2,'POINT')}"></td><td><span class="pill" th:classappend="${a.priorityBand() == 'HIGH'} ? danger : warning" th:text="${a.priorityScore()} + ' ' + ${a.priorityBand()}"></span></td><td class="wrap" th:text="${#strings.listJoin(a.reasonCodes(), ', ')}"></td><td th:text="${a.nextContactSlot()}"></td></tr>
+      <tr th:if="${#lists.isEmpty(topQueue)}"><td colspan="6" class="empty">No cases. An administrator can load the synthetic dataset from the Evaluation page.</td></tr>
+    </tbody></table></div>
+  </section>
+  <p class="footnote">Synthetic data only. Priority never authorises contact: do-not-contact, legal hold, open disputes, hardship channel limits and permitted contact windows are enforced before any contact is scheduled or executed.</p>
+</main></body></html>
